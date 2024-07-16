@@ -1,10 +1,12 @@
 EXEC = sysshell
-PKGS = gtkmm-4.0 gtk4-layer-shell-0 wireplumber-0.5
+PKGS = gtkmm-4.0 gtk4-layer-shell-0 wireplumber-0.5 dbus-1 libcurl
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
 DESTDIR = $(HOME)/.local
 
 CXXFLAGS = -march=native -mtune=native -Os -s -Wall -flto=auto -fno-exceptions
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
-LDFLAGS += $(shell pkg-config --libs $(PKGS))
+LDFLAGS = $(shell pkg-config --libs $(PKGS))
 
 all: $(EXEC)
 
@@ -13,12 +15,15 @@ install: $(EXEC)
 	install $(EXEC) $(DESTDIR)/bin/$(EXEC)
 
 clean:
-	rm $(EXEC)
+	rm $(EXEC) $(OBJS)
 
-$(EXEC): src/main.cpp src/config_parser.cpp
+$(EXEC): $(OBJS)
 	$(CXX) -o $(EXEC) \
-	src/main.cpp \
-	src/config_parser.cpp \
+	$(OBJS) \
 	$(LDFLAGS) \
+	$(CXXFLAGS)
+
+%.o: %.cpp
+	$(CXX) -c $< -o $@ \
 	$(CXXFLAGS) \
 	-I include
