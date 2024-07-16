@@ -20,7 +20,7 @@ void load_libsysbar() {
 	void* handle = dlopen("libsysbar.so", RTLD_LAZY);
 	if (!handle) {
 		std::cerr << "Cannot open library: " << dlerror() << '\n';
-		exit(1);
+		return;
 	}
 
 	sysbar_create = (sysbar_create_func)dlsym(handle, "sysbar_create");
@@ -29,8 +29,10 @@ void load_libsysbar() {
 	if (dlsym_error) {
 		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
 		dlclose(handle);
-		exit(1);
+		return;
 	}
+
+	std::cout << "Loading: libsysbar.so" << std::endl;
 
 	config_bar cfg;
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
@@ -66,7 +68,7 @@ void load_libsyshud() {
 	void* handle = dlopen("libsyshud.so", RTLD_LAZY);
 	if (!handle) {
 		std::cerr << "Cannot open library: " << dlerror() << '\n';
-		exit(1);
+		return;
 	}
 
 	syshud_create = (syshud_create_func)dlsym(handle, "syshud_create");
@@ -75,8 +77,10 @@ void load_libsyshud() {
 	if (dlsym_error) {
 		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
 		dlclose(handle);
-		exit(1);
+		return;
 	}
+
+	std::cout << "Loading: libsyshud.so" << std::endl;
 
 	config_hud cfg;
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/hud/config.conf");
@@ -134,7 +138,7 @@ void load_libsysmenu() {
 	void* handle = dlopen("libsysmenu.so", RTLD_LAZY);
 	if (!handle) {
 		std::cerr << "Cannot open library: " << dlerror() << '\n';
-		exit(1);
+		return;
 	}
 
 	sysmenu_create = (sysmenu_create_func)dlsym(handle, "sysmenu_create");
@@ -144,8 +148,10 @@ void load_libsysmenu() {
 	if (dlsym_error) {
 		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
 		dlclose(handle);
-		exit(1);
+		return;
 	}
+
+	std::cout << "Loading: libsysmenu.so" << std::endl;
 
 	config_menu cfg;
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/menu/config.conf");
