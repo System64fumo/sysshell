@@ -2,18 +2,24 @@
 
 #include <libsysbar.hpp>
 #include <libsyshud.hpp>
+#include <libsyslock.hpp>
 #include <libsysmenu.hpp>
 
 #include <gtkmm/application.h>
 #include <iostream>
 #include <dlfcn.h>
 
-sysmenu *sysmenu_window;
-syshud *syshud_window;
 sysbar *sysbar_window;
+syshud *syshud_window;
+syslock *syslock_window;
+sysmenu *sysmenu_window;
 
 void handle_signal(int signum) {
-	sysmenu_signal(sysmenu_window, signum);
+	// TODO: Prevent sysmenu from working when syslock is locked
+	if (signum == 10 || signum == 12 || signum == 34)
+		sysmenu_signal(sysmenu_window, signum);
+	else if (signum == 35)
+		syslock_lock(syslock_window);
 }
 
 void load_libsysbar() {
@@ -134,6 +140,45 @@ void load_libsyshud() {
 	syshud_window = syshud_create(cfg);
 }
 
+void load_libsyslock() {
+	void* handle = dlopen("libsyslock.so", RTLD_LAZY);
+	if (!handle) {
+		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		return;
+	}
+
+	syslock_create = (syslock_create_func)dlsym(handle, "syslock_create");
+	syslock_lock = (syslock_lock_func)dlsym(handle, "syslock_lock");
+
+	const char* dlsym_error = dlerror();
+	if (dlsym_error) {
+		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+		dlclose(handle);
+		return;
+	}
+
+	std::cout << "Loading: libsyslock.so" << std::endl;
+
+	config_lock cfg;
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/lock/config.conf");
+
+	std::string cfg_start_unlocked = config.get_value("main", "start-unlocked");
+	cfg.start_unlocked = (cfg_start_unlocked == "true");
+
+	std::string cfg_keypad = config.get_value("main", "keypad");
+	cfg.keypad_enabled = (cfg_keypad == "true");
+
+	std::string cfg_pw_length = config.get_value("main", "password-length");
+	if (cfg_pw_length != "empty")
+		cfg.pw_length = std::stoi(cfg_pw_length);
+
+	std::string cfg_main_monitor = config.get_value("main", "main-monitor");
+	if (cfg_main_monitor != "empty")
+		cfg.main_monitor = std::stoi(cfg_main_monitor);
+
+	syslock_window = syslock_create(cfg);
+}
+
 void load_libsysmenu() {
 	void* handle = dlopen("libsysmenu.so", RTLD_LAZY);
 	if (!handle) {
@@ -220,14 +265,18 @@ int main() {
 	auto app = Gtk::Application::create("funky.sys64.sysshell");
 	app->hold();
 
+	// Load libraries
 	load_libsysbar();
 	load_libsyshud();
+	//load_libsyslock();
 	load_libsysmenu();
 
 	// Catch signals
-	signal(SIGUSR1, handle_signal);
-	signal(SIGUSR2, handle_signal);
-	signal(SIGRTMIN, handle_signal); // Not really needed
+	signal(SIGUSR1, handle_signal);		// sysmenu: show
+	signal(SIGUSR2, handle_signal);		// sysmenu: hide
+	signal(SIGRTMIN, handle_signal);	// sysmenu: toggle
+
+	//signal(SIGRTMIN+1, handle_signal);	// syslock: lock
 
 	return app->run();
 }

@@ -1,5 +1,5 @@
 EXEC = sysshell
-PKGS = gtkmm-4.0 gtk4-layer-shell-0 wireplumber-0.5 dbus-1 libcurl
+PKGS = gtkmm-4.0 gtk4-layer-shell-0 wireplumber-0.5 dbus-1 libcurl pam
 SRCS = $(wildcard src/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DESTDIR = $(HOME)/.local
