@@ -19,10 +19,6 @@ Simple screen locker for wayland written in gtkmm 4<br>
 Simple and efficient application launcher written in gtkmm4<br>
 ![default](https://github.com/System64fumo/sysmenu/blob/main/preview_default.gif "default")
 
-> [!NOTE]
-> syslock has been added to sysshell however it's currently disabled.<br>
-> It will be re-enabled once i add stuff to prevent sysmenu from crashing.<br>
-
 # Why does this exist?
 I was rather annoyed by how much memory GTK guzzled up,<br>
 So i decided to convert my sys* programs to libraries that could be loaded via sysshell which would significantly reduce their memory footprint.

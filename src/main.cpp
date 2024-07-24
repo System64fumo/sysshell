@@ -268,15 +268,16 @@ int main() {
 	// Load libraries
 	load_libsysbar();
 	load_libsyshud();
-	//load_libsyslock();
+	load_libsyslock();
 	load_libsysmenu();
 
 	// Catch signals
+	// TODO: Add a config to assign custom signals to each action
 	signal(SIGUSR1, handle_signal);		// sysmenu: show
 	signal(SIGUSR2, handle_signal);		// sysmenu: hide
 	signal(SIGRTMIN, handle_signal);	// sysmenu: toggle
 
-	//signal(SIGRTMIN+1, handle_signal);	// syslock: lock
+	signal(SIGRTMIN+1, handle_signal);	// syslock: lock
 
 	return app->run();
 }
