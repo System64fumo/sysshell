@@ -16,7 +16,13 @@ sysmenu *sysmenu_window;
 
 void handle_signal(int signum) {
 	// TODO: Prevent sysmenu from working when syslock is locked
-	if (signum == 10 || signum == 12 || signum == 34)
+	if (signum == 36)
+		sysbar_signal(sysbar_window, 10);
+	else if (signum == 37)
+		sysbar_signal(sysbar_window, 12);
+	else if (signum == 38)
+		sysbar_signal(sysbar_window, 34);
+	else if (signum == 10 || signum == 12 || signum == 34)
 		sysmenu_signal(sysmenu_window, signum);
 	else if (signum == 35)
 		syslock_lock(syslock_window);
@@ -30,6 +36,7 @@ void load_libsysbar() {
 	}
 
 	sysbar_create = (sysbar_create_func)dlsym(handle, "sysbar_create");
+	sysbar_signal = (sysbar_signal_func)dlsym(handle, "sysbar_signal");
 
 	const char* dlsym_error = dlerror();
 	if (dlsym_error) {
@@ -273,6 +280,10 @@ int main() {
 
 	// Catch signals
 	// TODO: Add a config to assign custom signals to each action
+	signal(SIGRTMIN+2, handle_signal);	// sysbar: show
+	signal(SIGRTMIN+3, handle_signal);	// sysbar: hide
+	signal(SIGRTMIN+4, handle_signal);	// sysbar: toggle
+
 	signal(SIGUSR1, handle_signal);		// sysmenu: show
 	signal(SIGUSR2, handle_signal);		// sysmenu: hide
 	signal(SIGRTMIN, handle_signal);	// sysmenu: toggle
