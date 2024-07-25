@@ -12,3 +12,5 @@ struct config_bar {
 class sysbar {};
 using sysbar_create_func = sysbar* (*)(const config_bar &cfg);
 sysbar_create_func sysbar_create;
+using sysbar_signal_func = void (*)(sysbar*, int);
+sysbar_signal_func sysbar_signal;
