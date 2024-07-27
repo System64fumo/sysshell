@@ -25,9 +25,12 @@ Simple power menu/shutdown screen written in gtkmm 4<br>
 
 
 # Why does this exist?
-I was rather annoyed by how much memory GTK guzzled up,<br>
-So i decided to convert my sys* programs to libraries that could be loaded via sysshell which would significantly reduce their memory footprint.
+Because as it turns out, Combining multiple programs into one is a good idea<br>
+In other words, Reduce memory footprint because GTK consumes a lot of it<br>
 
 # Future plans
-I kind of want to share more stuff between the programs to hopefully reduce memory usage and possibly disk usage a bit more.<br>
-An example would be syshud and sysbar's volume monitor.
+Add exclusive features that don't really deserve to be their own projects into this<br>
+Fun examples would be:<br>
+* Wallpaper<br>
+* Screenshot utility/overlay<br>
+* On screen keyboard (This might become it's own project one day)<br>
