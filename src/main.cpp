@@ -4,15 +4,21 @@
 #include <libsyshud.hpp>
 #include <libsyslock.hpp>
 #include <libsysmenu.hpp>
+#include <libsyspower.hpp>
 
 #include <gtkmm/application.h>
 #include <iostream>
 #include <dlfcn.h>
 
+// Windows
 sysbar *sysbar_window;
 syshud *syshud_window;
 syslock *syslock_window;
 sysmenu *sysmenu_window;
+syspower *syspower_window;
+
+// Configs (Should i also move the other configs here?)
+config_power cfg_power;
 
 void handle_signal(int signum) {
 	// TODO: Prevent sysmenu from working when syslock is locked
@@ -26,6 +32,11 @@ void handle_signal(int signum) {
 		sysmenu_signal(sysmenu_window, signum);
 	else if (signum == 35)
 		syslock_lock(syslock_window);
+	else if (signum == 39) {
+		// TODO: Show other windows
+		// TODO: Only show if another instance is not already running
+		syspower_window = syspower_create(cfg_power);
+	}
 }
 
 void load_libsysbar() {
@@ -244,21 +255,21 @@ void load_libsysmenu() {
 	if (cfg_width != "empty")
 		cfg.width = std::stoi(cfg_width);
 
-	std::string cfg_height =  config.get_value("main", "height");
+	std::string cfg_height = config.get_value("main", "height");
 	if (cfg_height != "empty")
-		cfg.height=std::stoi(cfg_height);
+		cfg.height = std::stoi(cfg_height);
 
-	std::string cfg_monitor =  config.get_value("main", "monitor");
+	std::string cfg_monitor = config.get_value("main", "monitor");
 	if (cfg_monitor != "empty")
-		cfg.main_monitor=std::stoi(cfg_monitor);
+		cfg.main_monitor = std::stoi(cfg_monitor);
 
-	std::string cfg_layer_shell =  config.get_value("main", "layer-shell");
+	std::string cfg_layer_shell = config.get_value("main", "layer-shell");
 	cfg.layer_shell = (cfg_layer_shell == "true");
 
-	std::string cfg_fullscreen =  config.get_value("main", "fullscreen");
+	std::string cfg_fullscreen = config.get_value("main", "fullscreen");
 	cfg.fill_screen = (cfg_fullscreen == "true");
 
-	std::string cfg_dock_items =  config.get_value("main", "dock-items");
+	std::string cfg_dock_items = config.get_value("main", "dock-items");
 	if (!cfg_dock_items.empty()) {
 		cfg.dock_items = cfg_dock_items;
 		cfg.layer_shell = true;
@@ -266,6 +277,39 @@ void load_libsysmenu() {
 	}
 
 	sysmenu_window = sysmenu_create(cfg);
+}
+
+void load_libsyspower() {
+	void* handle = dlopen("libsyspower.so", RTLD_LAZY);
+	if (!handle) {
+		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		return;
+	}
+
+	syspower_create = (syspower_create_func)dlsym(handle, "syspower_create");
+
+	const char* dlsym_error = dlerror();
+	if (dlsym_error) {
+		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+		dlclose(handle);
+		return;
+	}
+
+	std::cout << "Loading: libsyspower.so" << std::endl;
+
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/power/config.conf");
+
+	std::string cfg_position = config.get_value("main", "position");
+	if (cfg_position != "empty")
+		cfg_power.position = std::stoi(cfg_position);
+
+	std::string cfg_monitor =  config.get_value("main", "monitor");
+	if (cfg_monitor != "empty")
+		cfg_power.main_monitor = std::stoi(cfg_monitor);
+
+	std::string cfg_transition = config.get_value("main", "transition-duration");
+	if (cfg_transition != "empty")
+		cfg_power.transition_duration = std::stoi(cfg_transition);
 }
 
 int main() {
@@ -277,6 +321,7 @@ int main() {
 	load_libsyshud();
 	load_libsyslock();
 	load_libsysmenu();
+	load_libsyspower();
 
 	// Catch signals
 	// TODO: Add a config to assign custom signals to each action
@@ -289,6 +334,8 @@ int main() {
 	signal(SIGRTMIN, handle_signal);	// sysmenu: toggle
 
 	signal(SIGRTMIN+1, handle_signal);	// syslock: lock
+
+	signal(SIGRTMIN+5, handle_signal);	// syspower: show
 
 	return app->run();
 }
