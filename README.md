@@ -19,6 +19,11 @@ Simple screen locker for wayland written in gtkmm 4<br>
 Simple and efficient application launcher written in gtkmm4<br>
 ![default](https://github.com/System64fumo/sysmenu/blob/main/preview_default.gif "default")
 
+## [syspower](https://github.com/System64fumo/syspower)
+Simple power menu/shutdown screen written in gtkmm 4<br>
+![default](https://github.com/System64fumo/syspower/blob/main/preview.gif "preview")
+
+
 # Why does this exist?
 I was rather annoyed by how much memory GTK guzzled up,<br>
 So i decided to convert my sys* programs to libraries that could be loaded via sysshell which would significantly reduce their memory footprint.
