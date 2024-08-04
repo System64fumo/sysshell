@@ -6,6 +6,7 @@
 #include <libsysmenu.hpp>
 #include <libsyspower.hpp>
 
+#include <gtk4-layer-shell.h>
 #include <gtkmm/application.h>
 #include <iostream>
 #include <dlfcn.h>
@@ -315,6 +316,13 @@ void load_libsyspower() {
 int main() {
 	auto app = Gtk::Application::create("funky.sys64.sysshell");
 	app->hold();
+
+	// This is required for linking to work properly
+	bool supported = gtk_layer_is_supported();
+	if (!supported) {
+		std::cerr << "I've got a sneaking suspision that your compositor doesn't support gtk layer shell.." << std::endl;
+		return 1;
+	}
 
 	// Load libraries
 	load_libsysbar();

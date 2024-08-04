@@ -1,12 +1,14 @@
 EXEC = sysshell
-PKGS = gtkmm-4.0 gtk4-layer-shell-0 wireplumber-0.5 dbus-1 libcurl pam libevdev
+PKGS = gtkmm-4.0 gtk4-layer-shell-0
 SRCS = $(wildcard src/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DESTDIR = $(HOME)/.local
 
-CXXFLAGS = -march=native -mtune=native -Os -s -Wall -flto=auto -fno-exceptions
+CXXFLAGS += -Os -s -Wall -flto=auto -fno-exceptions
+LDFLAGS += -Wl,-O1,--as-needed,-z,now,-z,pack-relative-relocs
+
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
-LDFLAGS = $(shell pkg-config --libs $(PKGS))
+LDFLAGS += $(shell pkg-config --libs $(PKGS))
 
 all: $(EXEC)
 
@@ -20,8 +22,8 @@ clean:
 $(EXEC): $(OBJS)
 	$(CXX) -o $(EXEC) \
 	$(OBJS) \
-	$(LDFLAGS) \
-	$(CXXFLAGS)
+	$(CXXFLAGS) \
+	$(LDFLAGS)
 
 %.o: %.cpp
 	$(CXX) -c $< -o $@ \
