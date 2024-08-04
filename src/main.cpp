@@ -74,6 +74,10 @@ void load_libsysbar() {
 	if (verbose == "true")
 		cfg.verbose = true;
 
+	std::string cfg_main_monitor = config.get_value("main", "main-monitor");
+	if (cfg_main_monitor != "empty")
+		cfg.main_monitor = std::stoi(cfg_main_monitor);
+
 	std::string m_start = config.get_value("main", "m_start");
 	if (m_start != "empty")
 		cfg.m_start = m_start;
