@@ -256,6 +256,10 @@ void load_libsysmenu() {
 	if (cfg_items_per_row != "empty")
 		cfg.items_per_row = std::stoi(cfg_items_per_row);
 
+	std::string cfg_anchors =  config.get_value("main", "anchors");
+	if (cfg_anchors != "empty")
+		cfg.anchors = cfg_anchors;
+
 	std::string cfg_width = config.get_value("main", "width");
 	if (cfg_width != "empty")
 		cfg.width = std::stoi(cfg_width);
@@ -271,14 +275,11 @@ void load_libsysmenu() {
 	std::string cfg_layer_shell = config.get_value("main", "layer-shell");
 	cfg.layer_shell = (cfg_layer_shell == "true");
 
-	std::string cfg_fullscreen = config.get_value("main", "fullscreen");
-	cfg.fill_screen = (cfg_fullscreen == "true");
-
 	std::string cfg_dock_items = config.get_value("main", "dock-items");
 	if (!cfg_dock_items.empty()) {
 		cfg.dock_items = cfg_dock_items;
 		cfg.layer_shell = true;
-		cfg.fill_screen = true;
+		cfg.anchors = "top right bottom left";
 	}
 
 	sysmenu_window = sysmenu_create(cfg);
