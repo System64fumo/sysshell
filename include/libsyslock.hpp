@@ -1,3 +1,5 @@
+#pragma once
+
 struct config_lock {
 	bool start_unlocked = false;
 	bool keypad_enabled = false;
@@ -8,6 +10,7 @@ struct config_lock {
 
 class syslock {};
 using syslock_create_func = syslock* (*)(const config_lock &cfg);
-syslock_create_func syslock_create;
+inline syslock_create_func syslock_create;
 using syslock_lock_func = void (*)(syslock*);
-syslock_lock_func syslock_lock;
+inline syslock_lock_func syslock_lock;
+inline syslock *syslock_window;

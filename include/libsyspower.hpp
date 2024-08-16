@@ -1,3 +1,5 @@
+#pragma once
+
 struct config_power {
 	int position = 4;
 	int main_monitor = 0;
@@ -6,4 +8,6 @@ struct config_power {
 
 class syspower {};
 using syspower_create_func = syspower* (*)(const config_power &cfg);
-syspower_create_func syspower_create;
+inline syspower_create_func syspower_create;
+inline syspower *syspower_window;
+inline config_power cfg_power;

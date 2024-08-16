@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 struct config_bar {
@@ -12,6 +13,7 @@ struct config_bar {
 
 class sysbar {};
 using sysbar_create_func = sysbar* (*)(const config_bar &cfg);
-sysbar_create_func sysbar_create;
+inline sysbar_create_func sysbar_create;
 using sysbar_signal_func = void (*)(sysbar*, int);
-sysbar_signal_func sysbar_signal;
+inline sysbar_signal_func sysbar_signal;
+inline sysbar *sysbar_window;
