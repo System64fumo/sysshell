@@ -1,6 +1,7 @@
 #include "config_parser.hpp"
 
 #include <libsysbar.hpp>
+#include <libsysboard.hpp>
 #include <libsyshud.hpp>
 #include <libsyslock.hpp>
 #include <libsysmenu.hpp>
@@ -13,6 +14,7 @@
 
 // Windows
 sysbar *sysbar_window;
+sysboard *sysboard_window;
 syshud *syshud_window;
 syslock *syslock_window;
 sysmenu *sysmenu_window;
@@ -37,6 +39,15 @@ void handle_signal(int signum) {
 		// TODO: Show other windows
 		// TODO: Only show if another instance is not already running
 		syspower_window = syspower_create(cfg_power);
+	}
+	else if (signum == 40) {
+		sysboard_signal(sysboard_window, 10);
+	}
+	else if (signum == 41) {
+		sysboard_signal(sysboard_window, 12);
+	}
+	else if (signum == 42) {
+		sysboard_signal(sysboard_window, 34);
 	}
 }
 
@@ -91,6 +102,43 @@ void load_libsysbar() {
 		cfg.m_end = m_end;
 
 	sysbar_window = sysbar_create(cfg);
+}
+
+void load_libsysboard() {
+	void* handle = dlopen("libsysboard.so", RTLD_LAZY);
+	if (!handle) {
+		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		return;
+	}
+
+	sysboard_create = (sysboard_create_func)dlsym(handle, "sysboard_create");
+	sysboard_signal = (sysboard_signal_func)dlsym(handle, "sysboard_signal");
+
+	const char* dlsym_error = dlerror();
+	if (dlsym_error) {
+		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+		dlclose(handle);
+		return;
+	}
+
+	std::cout << "Loading: libsysboard.so" << std::endl;
+
+	config_board cfg;
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/board/config.conf");
+
+	std::string cfg_margin = config.get_value("main", "margin");
+	if (cfg_margin != "empty")
+		cfg.margin = std::stoi(cfg_margin);
+
+	std::string cfg_height_multiplier = config.get_value("main", "height-multiplier");
+	if (cfg_height_multiplier != "empty")
+		cfg.height_multiplier = std::stod(cfg_height_multiplier);
+
+	std::string cfg_layout = config.get_value("main", "layout");
+	if (cfg_layout != "empty")
+		cfg.layout = cfg_layout;
+
+	sysboard_window = sysboard_create(cfg);
 }
 
 void load_libsyshud() {
@@ -331,6 +379,7 @@ int main() {
 
 	// Load libraries
 	load_libsysbar();
+	load_libsysboard();
 	load_libsyshud();
 	load_libsyslock();
 	load_libsysmenu();
@@ -341,6 +390,10 @@ int main() {
 	signal(SIGRTMIN+2, handle_signal);	// sysbar: show
 	signal(SIGRTMIN+3, handle_signal);	// sysbar: hide
 	signal(SIGRTMIN+4, handle_signal);	// sysbar: toggle
+
+	signal(SIGRTMIN+6, handle_signal);	// sysboard: show
+	signal(SIGRTMIN+7, handle_signal);	// sysboard: hide
+	signal(SIGRTMIN+8, handle_signal);	// sysboard: toggle
 
 	signal(SIGUSR1, handle_signal);		// sysmenu: show
 	signal(SIGUSR2, handle_signal);		// sysmenu: hide
