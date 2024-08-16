@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 struct config_menu {
@@ -20,6 +21,7 @@ struct config_menu {
 
 class sysmenu {};
 using sysmenu_create_func = sysmenu* (*)(const config_menu &cfg);
-sysmenu_create_func sysmenu_create;
+inline sysmenu_create_func sysmenu_create;
 using sysmenu_signal_func = void (*)(sysmenu*, int);
-sysmenu_signal_func sysmenu_signal;
+inline sysmenu_signal_func sysmenu_signal;
+inline sysmenu *sysmenu_window;

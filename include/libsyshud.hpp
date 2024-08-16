@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 struct config_hud {
@@ -16,4 +17,5 @@ struct config_hud {
 
 class syshud {};
 using syshud_create_func = syshud* (*)(const config_hud &cfg);
-syshud_create_func syshud_create;
+inline syshud_create_func syshud_create;
+inline syshud *syshud_window;
