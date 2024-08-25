@@ -7,6 +7,10 @@ This program serves as a launcher for my other sys* programs and doesn't offer a
 Modular status bar for wayland written in gtkmm4<br>
 ![preview](https://github.com/System64fumo/sysbar/blob/main/preview.jpg "preview")
 
+## [sysboard](https://github.com/System64fumo/sysboard)
+Simple virtual keyboard for wayland<br>
+![preview](https://github.com/System64fumo/sysboard/blob/main/preview.png "preview")
+
 ## [syshud](https://github.com/System64fumo/syshud)
 Simple system status indicator written in gtkmm 4<br>
 ![preview](https://github.com/System64fumo/sysvol/blob/main/preview.gif "preview")
@@ -33,4 +37,3 @@ Add exclusive features that don't really deserve to be their own projects into t
 Fun examples would be:<br>
 * Wallpaper<br>
 * Screenshot utility/overlay<br>
-* On screen keyboard (This might become it's own project one day)<br>
