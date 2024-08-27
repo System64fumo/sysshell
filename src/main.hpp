@@ -17,3 +17,7 @@ void load_libsyshud();
 void load_libsyslock();
 void load_libsysmenu();
 void load_libsyspower();
+
+struct config_shell {
+	std::string load = "bar,board,hud,lock,menu,power";
+} cfg_shell;

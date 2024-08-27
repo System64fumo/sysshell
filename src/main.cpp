@@ -42,13 +42,32 @@ int main() {
 		return 1;
 	}
 
+	// Parse the config
+	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/shell/config.conf");
+	std::string libraries = config.get_value("main", "load");
+	if (libraries != "empty")
+		cfg_shell.load = libraries;
+
 	// Load libraries
-	load_libsysbar();
-	load_libsysboard();
-	load_libsyshud();
-	load_libsyslock();
-	load_libsysmenu();
-	load_libsyspower();
+	std::istringstream iss(cfg_shell.load);
+	std::string library;
+	while (std::getline(iss, library, ',')) {
+		if (library == "bar")
+			load_libsysbar();
+		else if (library == "board")
+			load_libsysboard();
+		else if (library == "hud")
+			load_libsyshud();
+		else if (library == "lock")
+			load_libsyslock();
+		else if (library == "menu")
+			load_libsysmenu();
+		else if (library == "power")
+			load_libsyspower();
+		else {
+			std::fprintf(stderr, "Cannot load \"%s\"\n", library.c_str());
+		}
+	}
 
 	// Catch signals
 	// TODO: Add a config to assign custom signals to each action
