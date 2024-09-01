@@ -27,13 +27,16 @@ Simple and efficient application launcher written in gtkmm4<br>
 Simple power menu/shutdown screen written in gtkmm 4<br>
 ![default](https://github.com/System64fumo/syspower/blob/main/preview.gif "preview")
 
-
 # Why does this exist?
-Because as it turns out, Combining multiple programs into one is a good idea<br>
-In other words, Reduce memory footprint because GTK consumes a lot of it<br>
+Primarily because i wanted to have some fun writing a shell, But also because other solutions don't quite do a good enough job for me<br>
+The sysshell launcher exists as a way to preserve memory instead of launching every sys* program independently.<br>
+This is one of my most ambitious projects yet and i'm unsure if i'm capable of finishing everything i've started,
+Contribution is most certianly welcome!
 
 # Future plans
-Add exclusive features that don't really deserve to be their own projects into this<br>
-Fun examples would be:<br>
-* Wallpaper<br>
-* Screenshot utility/overlay<br>
+Create a screenshot overlay<br>
+Create a polkit/keyring overlay<br>
+Optimize existing stuff as much as possible, At the moment the focus is on features<br>
+Either rewrite major sections of code with more up to date C++ practices/stuff or rewrite in pure C<br>
+Split/Handle shared code via a common library to reduce duplicate code<br>
+
