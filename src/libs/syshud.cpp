@@ -67,5 +67,9 @@ void load_libsyshud() {
 	if (!cfg_monitors.empty())
 		cfg.monitors = cfg_monitors;
 
+	std::string cfg_keyboard = config.get_value("main", "keyboard");
+	if (cfg_keyboard != "empty")
+		cfg.keyboard = cfg_keyboard;
+
 	syshud_window = syshud_create(cfg);
 }
