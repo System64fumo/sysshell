@@ -5,6 +5,7 @@ struct config_lock {
 	bool keypad_enabled = false;
 	int pw_length = -1;
 	int main_monitor = 0;
+	bool experimental = false;
 	bool debug = false;
 };
 
