@@ -26,6 +26,7 @@ all: $(BINS)
 install: $(BINS)
 	@echo "Installing..."
 	@install -D -t $(DESTDIR)$(BINDIR) $(BINS)
+	@install -D -t $(DESTDIR)$(DATADIR)/sys64/shell config.conf
 
 clean:
 	@echo "Cleaning up"
