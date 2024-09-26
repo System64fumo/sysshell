@@ -2,6 +2,7 @@
 
 #include <gtk4-layer-shell.h>
 #include <gtkmm/application.h>
+#include <filesystem>
 
 void handle_signal(int signum) {
 	// TODO: Prevent sysmenu from working when syslock is locked
@@ -43,7 +44,16 @@ int main() {
 	}
 
 	// Parse the config
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/shell/config.conf");
+	std::string config_path;
+	if (std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/shell/config.conf"))
+		config_path = std::string(getenv("HOME")) + "/.config/sys64/shell/config.conf";
+	else if (std::filesystem::exists("/usr/share/sys64/shell/config.conf"))
+		config_path = "/usr/share/sys64/shell/config.conf";
+	else
+		config_path = "/usr/local/share/sys64/shell/config.conf";
+	
+	config_parser config(config_path);
+
 	std::string libraries = config.get_value("main", "load");
 	if (libraries != "empty")
 		cfg_shell.load = libraries;
