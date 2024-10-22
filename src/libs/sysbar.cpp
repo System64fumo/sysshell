@@ -1,4 +1,5 @@
 #include "../main.hpp"
+#include <filesystem>
 
 void load_libsysbar() {
 	void* handle = dlopen("libsysbar.so", RTLD_LAZY);
@@ -19,36 +20,41 @@ void load_libsysbar() {
 
 	std::cout << "Loading: libsysbar.so" << std::endl;
 
-	config_bar cfg;
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
+	std::string config_path;
+	std::map<std::string, std::map<std::string, std::string>> config;
+	std::map<std::string, std::map<std::string, std::string>> config_usr;
 
-	std::string position = config.get_value("main", "position");
-	if (position != "empty")
-		cfg.position = std::stoi(position);
+	bool cfg_sys = std::filesystem::exists("/usr/share/sys64/bar/config.conf");
+	bool cfg_sys_local = std::filesystem::exists("/usr/local/share/sys64/bar/config.conf");
+	bool cfg_usr = std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf");
 
-	std::string size = config.get_value("main", "size");
-	if (size != "empty")
-		cfg.size = std::stoi(size);
+	// Load default config
+	if (cfg_sys)
+		config_path = "/usr/share/sys64/bar/config.conf";
+	else if (cfg_sys_local)
+		config_path = "/usr/local/share/sys64/bar/config.conf";
+	else
+		std::fprintf(stderr, "No default config found, Things will get funky!\n");
 
-	std::string verbose = config.get_value("main", "verbose");
-	if (verbose == "true")
-		cfg.verbose = true;
+	config = config_parser(config_path).data;
 
-	std::string cfg_main_monitor = config.get_value("main", "main-monitor");
-	if (cfg_main_monitor != "empty")
-		cfg.main_monitor = std::stoi(cfg_main_monitor);
+	// Load user config
+	if (cfg_usr)
+		config_path = std::string(getenv("HOME")) + "/.config/sys64/bar/config.conf";
+	else
+		std::fprintf(stderr, "No user config found\n");
 
-	std::string m_start = config.get_value("main", "m_start");
-	if (m_start != "empty")
-		cfg.m_start = m_start;
+	config_usr = config_parser(config_path).data;
 
-	std::string m_center = config.get_value("main", "m_center");
-	if (m_center != "empty")
-		cfg.m_center = m_center;
+	// Merge configs
+	for (const auto& [key, nested_map] : config_usr)
+		config[key] = nested_map;
 
-	std::string m_end = config.get_value("main", "m_end");
-	if (m_end != "empty")
-		cfg.m_end = m_end;
+	// Sanity check
+	if (!(cfg_sys || cfg_sys_local || cfg_usr)) {
+		std::fprintf(stderr, "No config available, Something ain't right here.");
+		return;
+	}
 
-	sysbar_window = sysbar_create(cfg);
+	sysbar_window = sysbar_create(config);
 }

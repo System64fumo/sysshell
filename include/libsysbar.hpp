@@ -1,18 +1,9 @@
 #pragma once
+#include <map>
 #include <string>
 
-struct config_bar {
-	int position = 0;
-	int size = 40;
-	bool verbose = false;
-	int main_monitor = 0;
-	std::string m_start = "clock,weather,tray";
-	std::string m_center = "hyprland";
-	std::string m_end = "volume,network,notification";
-};
-
 class sysbar {};
-using sysbar_create_func = sysbar* (*)(const config_bar &cfg);
+using sysbar_create_func = sysbar* (*)(const std::map<std::string, std::map<std::string, std::string>> &cfg);
 inline sysbar_create_func sysbar_create;
 using sysbar_signal_func = void (*)(sysbar*, int);
 inline sysbar_signal_func sysbar_signal;
