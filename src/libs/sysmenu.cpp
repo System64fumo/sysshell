@@ -1,4 +1,5 @@
 #include "../main.hpp"
+#include <filesystem>
 
 void load_libsysmenu() {
 	void* handle = dlopen("libsysmenu.so", RTLD_LAZY);
@@ -19,66 +20,41 @@ void load_libsysmenu() {
 
 	std::cout << "Loading: libsysmenu.so" << std::endl;
 
-	config_menu cfg;
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/menu/config.conf");
+	std::string config_path;
+	std::map<std::string, std::map<std::string, std::string>> config;
+	std::map<std::string, std::map<std::string, std::string>> config_usr;
 
-	std::string cfg_start_hidden = config.get_value("main", "start-hidden");
-	cfg.starthidden = (cfg_start_hidden == "true");
+	bool cfg_sys = std::filesystem::exists("/usr/share/sys64/menu/config.conf");
+	bool cfg_sys_local = std::filesystem::exists("/usr/local/share/sys64/menu/config.conf");
+	bool cfg_usr = std::filesystem::exists(std::string(getenv("HOME")) + "/.config/sys64/menu/config.conf");
 
-	std::string cfg_searchbar = config.get_value("main", "searchbar");
-	cfg.searchbar = (cfg_searchbar == "true");
+	// Load default config
+	if (cfg_sys)
+		config_path = "/usr/share/sys64/menu/config.conf";
+	else if (cfg_sys_local)
+		config_path = "/usr/local/share/sys64/menu/config.conf";
+	else
+		std::fprintf(stderr, "No default config found, Things will get funky!\n");
 
-	std::string cfg_icon_size = config.get_value("main", "icon-size");
-	if (cfg_icon_size != "empty")
-		cfg.icon_size = std::stoi(cfg_icon_size);
+	config = config_parser(config_path).data;
 
-	std::string cfg_dock_icon_size = config.get_value("main", "dock-icon-size");
-	if (cfg_dock_icon_size != "empty")
-		cfg.dock_icon_size = std::stoi(cfg_dock_icon_size);
+	// Load user config
+	if (cfg_usr)
+		config_path = std::string(getenv("HOME")) + "/.config/sys64/menu/config.conf";
+	else
+		std::fprintf(stderr, "No user config found\n");
 
-	std::string cfg_app_margins = config.get_value("main", "app-margins");
-	if (cfg_app_margins != "empty")
-		cfg.app_margin = std::stoi(cfg_app_margins);
+	config_usr = config_parser(config_path).data;
 
-	std::string cfg_name_under_icon = config.get_value("main", "name-under-icon");
-	cfg.name_under_icon = (cfg_name_under_icon == "true");
+	// Merge configs
+	for (const auto& [key, nested_map] : config_usr)
+		config[key] = nested_map;
 
-	std::string cfg_scroll_bars = config.get_value("main", "scroll-bars");
-	cfg.scroll_bars = (cfg_scroll_bars == "true");
-
-	std::string cfg_name_length = config.get_value("main", "name-length");
-	if (cfg_name_length != "empty")
-		cfg.max_name_length = std::stoi(cfg_name_length);
-
-	std::string cfg_items_per_row = config.get_value("main", "items-per-row");
-	if (cfg_items_per_row != "empty")
-		cfg.items_per_row = std::stoi(cfg_items_per_row);
-
-	std::string cfg_anchors =  config.get_value("main", "anchors");
-	if (cfg_anchors != "empty")
-		cfg.anchors = cfg_anchors;
-
-	std::string cfg_width = config.get_value("main", "width");
-	if (cfg_width != "empty")
-		cfg.width = std::stoi(cfg_width);
-
-	std::string cfg_height = config.get_value("main", "height");
-	if (cfg_height != "empty")
-		cfg.height = std::stoi(cfg_height);
-
-	std::string cfg_monitor = config.get_value("main", "monitor");
-	if (cfg_monitor != "empty")
-		cfg.main_monitor = std::stoi(cfg_monitor);
-
-	std::string cfg_layer_shell = config.get_value("main", "layer-shell");
-	cfg.layer_shell = (cfg_layer_shell == "true");
-
-	std::string cfg_dock_items = config.get_value("main", "dock-items");
-	if (!cfg_dock_items.empty()) {
-		cfg.dock_items = cfg_dock_items;
-		cfg.layer_shell = true;
-		cfg.anchors = "top right bottom left";
+	// Sanity check
+	if (!(cfg_sys || cfg_sys_local || cfg_usr)) {
+		std::fprintf(stderr, "No config available, Something ain't right here.");
+		return;
 	}
 
-	sysmenu_window = sysmenu_create(cfg);
+	sysmenu_window = sysmenu_create(config);
 }
