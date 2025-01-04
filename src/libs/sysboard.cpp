@@ -18,20 +18,5 @@ void load_libsysboard() {
 		return;
 	}
 
-	config_board cfg;
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/board/config.conf");
-
-	std::string cfg_margin = config.get_value("main", "margin");
-	if (cfg_margin != "empty")
-		cfg.margin = std::stoi(cfg_margin);
-
-	std::string cfg_height_multiplier = config.get_value("main", "height-multiplier");
-	if (cfg_height_multiplier != "empty")
-		cfg.height_multiplier = std::stod(cfg_height_multiplier);
-
-	std::string cfg_layout = config.get_value("main", "layout");
-	if (cfg_layout != "empty")
-		cfg.layout = cfg_layout;
-
-	sysboard_window = sysboard_create(cfg);
+	sysboard_window = sysboard_create(load_config("board"));
 }

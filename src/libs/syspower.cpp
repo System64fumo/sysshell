@@ -16,18 +16,4 @@ void load_libsyspower() {
 		dlclose(handle);
 		return;
 	}
-
-	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/power/config.conf");
-
-	std::string cfg_position = config.get_value("main", "position");
-	if (cfg_position != "empty")
-		cfg_power.position = std::stoi(cfg_position);
-
-	std::string cfg_monitor =  config.get_value("main", "monitor");
-	if (cfg_monitor != "empty")
-		cfg_power.main_monitor = std::stoi(cfg_monitor);
-
-	std::string cfg_transition = config.get_value("main", "transition-duration");
-	if (cfg_transition != "empty")
-		cfg_power.transition_duration = std::stoi(cfg_transition);
 }
