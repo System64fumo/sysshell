@@ -1,6 +1,7 @@
 #include "../main.hpp"
 
 void load_libsyspower() {
+	std::cout << "Loading: libsyspower.so" << std::endl;
 	void* handle = dlopen("libsyspower.so", RTLD_LAZY);
 	if (!handle) {
 		std::cerr << "Cannot open library: " << dlerror() << '\n';
@@ -15,8 +16,6 @@ void load_libsyspower() {
 		dlclose(handle);
 		return;
 	}
-
-	std::cout << "Loading: libsyspower.so" << std::endl;
 
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/power/config.conf");
 
