@@ -18,6 +18,8 @@ void load_libsyslock();
 void load_libsysmenu();
 void load_libsyspower();
 
+std::map<std::string, std::map<std::string, std::string>> load_config(const std::string&);
+
 inline struct config_shell {
 	std::string load = "bar,board,hud,lock,menu,power";
 } cfg_shell;

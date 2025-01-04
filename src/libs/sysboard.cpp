@@ -1,6 +1,7 @@
 #include "../main.hpp"
 
 void load_libsysboard() {
+	std::cout << "Loading: libsysboard.so" << std::endl;
 	void* handle = dlopen("libsysboard.so", RTLD_LAZY);
 	if (!handle) {
 		std::cerr << "Cannot open library: " << dlerror() << '\n';
@@ -16,8 +17,6 @@ void load_libsysboard() {
 		dlclose(handle);
 		return;
 	}
-
-	std::cout << "Loading: libsysboard.so" << std::endl;
 
 	config_board cfg;
 	config_parser config(std::string(getenv("HOME")) + "/.config/sys64/board/config.conf");
