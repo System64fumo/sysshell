@@ -58,7 +58,7 @@ void handle_signal(int signum) {
 	else if (signum == 39) {
 		// TODO: Show other windows
 		// TODO: Only show if another instance is not already running
-		syspower_window = syspower_create(cfg_power);
+		syspower_window = syspower_create(load_config("power"));
 	}
 	else if (signum == 40) {
 		sysboard_signal(sysboard_window, 10);
