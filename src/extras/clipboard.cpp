@@ -22,8 +22,44 @@ static wl_registry_listener registry_listener = {
 	&registry_handler
 };
 
-static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* zwlr_data_control_offer_v1, const char* mime_type) {
+static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* offer, const char* mime_type) {
+	//auto self = static_cast<clipboard*>(data);
 	//std::printf("Available mime types: %s\n", mime_type);
+
+	// Temporarily disable this since it's a security risk
+	return;
+
+	std::string mime = mime_type;
+
+	if (mime == "text/plain" || mime == "STRING" || mime == "TEXT") {
+		// Write clipboard data to a temporary file
+		// This is horrible but i really can't think of any non blocking way to do this
+		FILE *file_ptr = fopen("/tmp/clipboard", "w+");
+		fclose(file_ptr);
+		int fd = open("/tmp/clipboard", O_WRONLY);
+
+		// TODO: Not everything is a plain text string, Add support for other mime types
+		zwlr_data_control_offer_v1_receive(offer, mime_type, fd);
+		close(fd);
+
+		// Slight delay has to happen between writing and reading the file
+		// Again this is annoying and i don't want this
+		// But a temporary solution is better than no solution
+		std::thread([]() {
+			usleep(100 * 1000);
+			std::ifstream file("/tmp/clipboard");
+			std::string contents((std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>());
+			remove("/tmp/clipboard");
+
+			std::printf("Data: %s\n", contents.c_str());
+		}).detach();
+
+		zwlr_data_control_offer_v1_destroy(offer);
+	}
+	else if (mime == "x-special/gnome-copied-files") {
+		// TODO: Add file handling
+	}
 }
 
 struct zwlr_data_control_offer_v1_listener data_control_offer_listener = {
@@ -38,36 +74,8 @@ static void data_control_device_offer(void* data, struct zwlr_data_control_devic
 }
 
 static void data_control_device_selection(void* data, struct zwlr_data_control_device_v1* device, struct zwlr_data_control_offer_v1* offer) {
-	//auto self = static_cast<clipboard*>(data);
-
 	if (!offer)
 		return;
-
-	// Temporarily disable this since it's a security risk
-	return;
-
-	// Write clipboard data to a temporary file
-	// This is horrible but i really can't think of any non blocking way to do this
-	FILE *file_ptr = fopen("/tmp/clipboard", "w+");
-	fclose(file_ptr);
-	int fd = open("/tmp/clipboard", O_WRONLY);
-
-	// TODO: Not everything is a plain text string, Add support for other mime types
-	zwlr_data_control_offer_v1_receive(offer, "text/plain", fd);
-	close(fd);
-
-	// Slight delay has to happen between writing and reading the file
-	// Again this is annoying and i don't want this
-	// But a temporary solution is better than no solution
-	std::thread([]() {
-		usleep(100 * 1000);
-		std::ifstream file("/tmp/clipboard");
-		std::string contents((std::istreambuf_iterator<char>(file)),
-			std::istreambuf_iterator<char>());
-		remove("/tmp/clipboard");
-
-		std::printf("Data: %s\n", contents.c_str());
-	}).detach();
 
 	zwlr_data_control_offer_v1_destroy(offer);
 }
