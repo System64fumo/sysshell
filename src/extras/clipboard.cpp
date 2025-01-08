@@ -2,6 +2,8 @@
 #include <gtk4-layer-shell.h>
 #include <gdk/wayland/gdkwayland.h>
 #include <fcntl.h>
+#include <fstream>
+#include <thread>
 
 static void registry_handler(void* data, struct wl_registry* registry,
 	uint32_t id, const char* interface, uint32_t version) {
@@ -46,30 +48,39 @@ static void data_control_device_selection(void* data, struct zwlr_data_control_d
 
 	// Write clipboard data to a temporary file
 	// This is horrible but i really can't think of any non blocking way to do this
-	FILE *file = fopen("/tmp/test", "a");
-	fclose(file);
-	int fd = open("/tmp/test", O_WRONLY);
+	FILE *file_ptr = fopen("/tmp/clipboard", "w+");
+	fclose(file_ptr);
+	int fd = open("/tmp/clipboard", O_WRONLY);
 
 	// TODO: Not everything is a plain text string, Add support for other mime types
 	zwlr_data_control_offer_v1_receive(offer, "text/plain", fd);
-
 	close(fd);
+
+	// Slight delay has to happen between writing and reading the file
+	// Again this is annoying and i don't want this
+	// But a temporary solution is better than no solution
+	std::thread([]() {
+		usleep(100 * 1000);
+		std::ifstream file("/tmp/clipboard");
+		std::string contents((std::istreambuf_iterator<char>(file)),
+			std::istreambuf_iterator<char>());
+		remove("/tmp/clipboard");
+
+		std::printf("Data: %s\n", contents.c_str());
+	}).detach();
 
 	zwlr_data_control_offer_v1_destroy(offer);
 }
 
-static void data_control_device_finished(void* data, struct zwlr_data_control_device_v1* device) {
-	zwlr_data_control_device_v1_destroy(device);
-}
-
 static void data_control_device_primary_selection(void* data, struct zwlr_data_control_device_v1* device, struct zwlr_data_control_offer_v1* offer) {
-	//zwlr_data_control_offer_v1_destroy(offer);
+	if (!offer)
+		return;
+	zwlr_data_control_offer_v1_destroy(offer);
 }
 
 static struct zwlr_data_control_device_v1_listener data_control_device_listener = {
 	.data_offer = data_control_device_offer,
 	.selection = data_control_device_selection,
-	.finished = data_control_device_finished,
 	.primary_selection = data_control_device_primary_selection
 };
 
