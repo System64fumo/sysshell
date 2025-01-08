@@ -7,10 +7,8 @@ class clipboard : public Gtk::Window {
 
 		zwlr_data_control_manager_v1* control_manager;
 
-		GdkDisplay *gdk_display;
-		GdkSeat *gdk_seat;
-		wl_seat *seat;
+		GdkDisplay* gdk_display;
+		GdkSeat* gdk_seat;
+		wl_seat* seat;
 		wl_display* display;
-
-		void setup_clipboard_monitor();
 };

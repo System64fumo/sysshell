@@ -5,23 +5,6 @@
 #include <fstream>
 #include <thread>
 
-static void registry_handler(void* data, struct wl_registry* registry,
-	uint32_t id, const char* interface, uint32_t version) {
-
-	auto self = static_cast<clipboard*>(data);
-
-	if (strcmp(interface, zwlr_data_control_manager_v1_interface.name) == 0) {
-		self->control_manager = (zwlr_data_control_manager_v1*)
-			wl_registry_bind(registry, id,
-				&zwlr_data_control_manager_v1_interface, 1u);
-		self->setup_clipboard_monitor();
-	}
-}
-
-static wl_registry_listener registry_listener = {
-	&registry_handler
-};
-
 static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* offer, const char* mime_type) {
 	//auto self = static_cast<clipboard*>(data);
 	//std::printf("Available mime types: %s\n", mime_type);
@@ -30,36 +13,35 @@ static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* of
 	return;
 
 	std::string mime = mime_type;
+	std::string clipboard_path = std::string(getenv("XDG_RUNTIME_DIR")) + "/sysshell_clipboard.tmp";
 
-	if (mime == "text/plain" || mime == "STRING" || mime == "TEXT") {
-		// Write clipboard data to a temporary file
-		// This is horrible but i really can't think of any non blocking way to do this
-		FILE *file_ptr = fopen("/tmp/clipboard", "w+");
-		fclose(file_ptr);
-		int fd = open("/tmp/clipboard", O_WRONLY);
+	// Skip unsupported mime types
+	if (!(mime == "text/plain" || mime == "STRING" || mime == "TEXT" || mime == "x-special/gnome-copied-files"))
+		return;
 
-		// TODO: Not everything is a plain text string, Add support for other mime types
-		zwlr_data_control_offer_v1_receive(offer, mime_type, fd);
-		close(fd);
+	// Write clipboard data to a temporary file
+	FILE *file_ptr = fopen(clipboard_path.c_str(), "w+");
+	fclose(file_ptr);
+	int fd = open(clipboard_path.c_str(), O_WRONLY);
 
-		// Slight delay has to happen between writing and reading the file
-		// Again this is annoying and i don't want this
-		// But a temporary solution is better than no solution
-		std::thread([]() {
-			usleep(100 * 1000);
-			std::ifstream file("/tmp/clipboard");
-			std::string contents((std::istreambuf_iterator<char>(file)),
-				std::istreambuf_iterator<char>());
-			remove("/tmp/clipboard");
+	// TODO: Not everything is a plain text string, Add support for other mime types
+	zwlr_data_control_offer_v1_receive(offer, mime_type, fd);
+	zwlr_data_control_offer_v1_destroy(offer);
+	close(fd);
 
-			std::printf("Data: %s\n", contents.c_str());
-		}).detach();
+	// Slight delay has to happen between writing and reading the file
+	// Again this is annoying and i don't want this
+	// But a temporary solution is better than no solution
+	std::thread([clipboard_path]() {
+		usleep(100 * 1000);
+		std::ifstream file(clipboard_path);
+		std::string contents((std::istreambuf_iterator<char>(file)),
+			std::istreambuf_iterator<char>());
+		remove(clipboard_path.c_str());
 
-		zwlr_data_control_offer_v1_destroy(offer);
-	}
-	else if (mime == "x-special/gnome-copied-files") {
-		// TODO: Add file handling
-	}
+		// TODO: Add mime specific handling
+		std::printf("Data: %s\n", contents.c_str());
+	}).detach();
 }
 
 struct zwlr_data_control_offer_v1_listener data_control_offer_listener = {
@@ -69,14 +51,12 @@ struct zwlr_data_control_offer_v1_listener data_control_offer_listener = {
 static void data_control_device_offer(void* data, struct zwlr_data_control_device_v1* device, struct zwlr_data_control_offer_v1* offer) {
 	if (!offer)
 		return;
-
 	zwlr_data_control_offer_v1_add_listener(offer, &data_control_offer_listener, data);
 }
 
 static void data_control_device_selection(void* data, struct zwlr_data_control_device_v1* device, struct zwlr_data_control_offer_v1* offer) {
 	if (!offer)
 		return;
-
 	zwlr_data_control_offer_v1_destroy(offer);
 }
 
@@ -90,6 +70,29 @@ static struct zwlr_data_control_device_v1_listener data_control_device_listener 
 	.data_offer = data_control_device_offer,
 	.selection = data_control_device_selection,
 	.primary_selection = data_control_device_primary_selection
+};
+
+static void registry_handler(void* data, struct wl_registry* registry,
+	uint32_t id, const char* interface, uint32_t version) {
+
+	auto self = static_cast<clipboard*>(data);
+
+	if (strcmp(interface, zwlr_data_control_manager_v1_interface.name) == 0) {
+		self->control_manager = (zwlr_data_control_manager_v1*)
+			wl_registry_bind(registry, id,
+				&zwlr_data_control_manager_v1_interface, 1u);
+		zwlr_data_control_device_v1* device =
+			zwlr_data_control_manager_v1_get_data_device(
+			self->control_manager,
+			self->seat);
+		zwlr_data_control_device_v1_add_listener(device, &data_control_device_listener, self);
+
+		wl_display_roundtrip(self->display);
+	}
+}
+
+static wl_registry_listener registry_listener = {
+	&registry_handler
 };
 
 clipboard::clipboard() {
@@ -111,11 +114,4 @@ clipboard::clipboard() {
 	display = wl_display_connect(NULL);
 	auto registry = wl_display_get_registry(g_display);
 	wl_registry_add_listener(registry, &registry_listener, this);
-}
-
-void clipboard::setup_clipboard_monitor() {
-	zwlr_data_control_device_v1* device = zwlr_data_control_manager_v1_get_data_device(control_manager, seat);
-	zwlr_data_control_device_v1_add_listener(device, &data_control_device_listener, this);
-
-	wl_display_roundtrip(display);
 }
