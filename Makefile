@@ -1,6 +1,6 @@
 BINS = sysshell
 PKGS = gtkmm-4.0 gtk4-layer-shell-0
-SRCS = $(wildcard src/*.cpp src/libs/*.cpp)
+SRCS = $(wildcard src/*.cpp src/libs/*.cpp src/extras/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 
 PREFIX ?= /usr/local
@@ -8,12 +8,17 @@ BINDIR ?= $(PREFIX)/bin
 DATADIR ?= $(PREFIX)/share
 
 CXXFLAGS += -Os -s -Wall -flto=auto -fno-exceptions
-LDFLAGS += -Wl,-O1,--as-needed,-z,now,-z,pack-relative-relocs
+LDFLAGS += -Wl,-O1,--no-as-needed,-z,now,-z,pack-relative-relocs
 
 CXXFLAGS += $(shell pkg-config --cflags $(PKGS))
 LDFLAGS += $(shell pkg-config --libs $(PKGS))
 
-JOB_COUNT := $(BINS) $(OBJS)
+PROTOS = $(wildcard proto/*.xml)
+PROTO_HDRS = $(patsubst proto/%.xml, src/%.h, $(PROTOS))
+PROTO_SRCS = $(patsubst proto/%.xml, src/%.c, $(PROTOS))
+PROTO_OBJS = $(PROTO_SRCS:.c=.o)
+
+JOB_COUNT := $(BINS) $(OBJS) $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS)
 JOBS_DONE := $(shell ls -l $(JOB_COUNT) 2> /dev/null | wc -l)
 
 define progress
@@ -30,17 +35,30 @@ install: $(BINS)
 
 clean:
 	@echo "Cleaning up"
-	@rm $(BINS) $(OBJS)
+	@rm $(BINS) $(OBJS) $(PROTO_OBJS) $(PROTO_HDRS) $(PROTO_SRCS)
 
-$(BINS): $(OBJS)
+$(BINS): $(PROTO_HDRS) $(PROTO_SRCS) $(PROTO_OBJS) $(OBJS)
 	$(call progress, Linking $@)
 	@$(CXX) -o $(BINS) \
 	$(OBJS) \
+	$(PROTO_OBJS) \
 	$(CXXFLAGS) \
-	$(LDFLAGS)
+	$(LDFLAGS) -lwayland-client
 
 %.o: %.cpp
 	$(call progress, Compiling $@)
 	@$(CXX) -c $< -o $@ \
 	$(CXXFLAGS) \
 	-I include
+
+%.o: %.c
+	$(call progress, Compiling $@)
+	@$(CC) -c $< -o $@ $(CFLAGS)
+
+$(PROTO_HDRS): src/%.h : proto/%.xml
+	$(call progress, Creating $@)
+	@wayland-scanner client-header $< $@
+
+$(PROTO_SRCS): src/%.c : proto/%.xml
+	$(call progress, Creating $@)
+	@wayland-scanner public-code $< $@
