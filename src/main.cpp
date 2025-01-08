@@ -69,6 +69,9 @@ void handle_signal(int signum) {
 	else if (signum == 42) {
 		sysboard_signal(sysboard_window, 34);
 	}
+	else if (signum == 43) {
+		cl->show();
+	}
 }
 
 int main() {
@@ -118,6 +121,21 @@ int main() {
 		}
 	}
 
+	std::string extras = config.get_value("main", "extras");
+
+	// Load libraries
+	std::istringstream iss_extras(extras);
+	std::string feature;
+	while (std::getline(iss_extras, feature, ',')) {
+		if (feature == "clipboard") {
+			std::printf("Loading clipboard feature\n");
+			cl = Gtk::make_managed<clipboard>();
+		}
+		else {
+			std::fprintf(stderr, "Feature not found \"%s\"\n", feature.c_str());
+		}
+	}
+
 	// Catch signals
 	// TODO: Add a config to assign custom signals to each action
 	signal(SIGRTMIN+2, handle_signal);	// sysbar: show
@@ -135,6 +153,8 @@ int main() {
 	signal(SIGRTMIN+1, handle_signal);	// syslock: lock
 
 	signal(SIGRTMIN+5, handle_signal);	// syspower: show
+
+	signal(SIGRTMIN+9, handle_signal);	// syspower: show
 
 	return app->run();
 }

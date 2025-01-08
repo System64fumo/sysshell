@@ -8,6 +8,8 @@
 #include <libsysmenu.hpp>
 #include <libsyspower.hpp>
 
+#include "extras/clipboard.hpp"
+
 #include <iostream>
 #include <dlfcn.h>
 
@@ -17,6 +19,8 @@ void load_libsyshud();
 void load_libsyslock();
 void load_libsysmenu();
 void load_libsyspower();
+
+inline clipboard* cl;
 
 std::map<std::string, std::map<std::string, std::string>> load_config(const std::string&);
 
