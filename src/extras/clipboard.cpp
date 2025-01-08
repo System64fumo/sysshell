@@ -1,6 +1,7 @@
 #include "clipboard.hpp"
 #include <gtk4-layer-shell.h>
 #include <gdk/wayland/gdkwayland.h>
+#include <gtkmm/eventcontrollerkey.h>
 #include <fcntl.h>
 #include <fstream>
 #include <thread>
@@ -95,18 +96,34 @@ static wl_registry_listener registry_listener = {
 	&registry_handler
 };
 
-clipboard::clipboard() {
-	// TODO: Actually add the UI for this
-	std::printf("Clipboard loaded\n");
-	set_hide_on_close(true);
+clipboard::clipboard() : box_main(Gtk::Orientation::VERTICAL) {
+	// TODO: Add positioning control (Ideally place under the cursor or near the text entry field)
 
 	// Layer shell stuff
 	gtk_layer_init_for_window(gobj());
-	gtk_layer_set_namespace(gobj(), "clipboard");
+	gtk_layer_set_namespace(gobj(), "sysclip");
 	gtk_layer_set_layer(gobj(), GTK_LAYER_SHELL_LAYER_OVERLAY);
-	gtk_layer_auto_exclusive_zone_enable(gobj());
+	gtk_layer_set_keyboard_mode(gobj(), GTK_LAYER_SHELL_KEYBOARD_MODE_ON_DEMAND);
 
-	// Initial setup
+	// UI Setup
+	set_name("sysclip");
+	set_hide_on_close(true);
+	set_default_size(300, 400);
+
+	set_child(box_main);
+	box_main.append(entry_search);
+	box_main.append(flowbox_main);
+
+	auto controller = Gtk::EventControllerKey::create();
+	controller->signal_key_pressed().connect([&](const guint &keyval, const guint &keycode, const Gdk::ModifierType &state) {
+		if (keyval == 65307) // Escape key
+			hide();
+
+		return false;
+	}, true);
+	add_controller(controller);
+
+	// Clipboard monitor setup
 	gdk_display = gdk_display_get_default();
 	gdk_seat = gdk_display_get_default_seat(gdk_display);
 	seat = gdk_wayland_seat_get_wl_seat(gdk_seat);

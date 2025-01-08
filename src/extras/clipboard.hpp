@@ -1,4 +1,7 @@
 #include <gtkmm/window.h>
+#include <gtkmm/box.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/flowbox.h>
 #include "../wlr-data-control-unstable-v1.h"
 
 class clipboard : public Gtk::Window {
@@ -11,4 +14,9 @@ class clipboard : public Gtk::Window {
 		GdkSeat* gdk_seat;
 		wl_seat* seat;
 		wl_display* display;
+
+	private:
+		Gtk::Box box_main;
+		Gtk::Entry entry_search;
+		Gtk::FlowBox flowbox_main;
 };
