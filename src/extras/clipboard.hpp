@@ -15,6 +15,8 @@ class clipboard : public Gtk::Window {
 		wl_seat* seat;
 		wl_display* display;
 
+		void add_item(const std::string&);
+
 	private:
 		Gtk::Box box_main;
 		Gtk::Entry entry_search;

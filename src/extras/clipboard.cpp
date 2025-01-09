@@ -2,12 +2,14 @@
 #include <gtk4-layer-shell.h>
 #include <gdk/wayland/gdkwayland.h>
 #include <gtkmm/eventcontrollerkey.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
 #include <fcntl.h>
 #include <fstream>
 #include <thread>
 
 static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* offer, const char* mime_type) {
-	//auto self = static_cast<clipboard*>(data);
+	auto self = static_cast<clipboard*>(data);
 	//std::printf("Available mime types: %s\n", mime_type);
 
 	// Temporarily disable this since it's a security risk
@@ -33,15 +35,16 @@ static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* of
 	// Slight delay has to happen between writing and reading the file
 	// Again this is annoying and i don't want this
 	// But a temporary solution is better than no solution
-	std::thread([clipboard_path]() {
+	std::thread([self, clipboard_path]() {
 		usleep(100 * 1000);
 		std::ifstream file(clipboard_path);
 		std::string contents((std::istreambuf_iterator<char>(file)),
 			std::istreambuf_iterator<char>());
 		remove(clipboard_path.c_str());
 
-		// TODO: Add mime specific handling
-		std::printf("Data: %s\n", contents.c_str());
+		// TODO: Fix thread safety issues
+		// This WILL cause issues, Please fix this ASAP
+		self->add_item(contents);
 	}).detach();
 }
 
@@ -113,6 +116,9 @@ clipboard::clipboard() : box_main(Gtk::Orientation::VERTICAL) {
 	set_child(box_main);
 	box_main.append(entry_search);
 	box_main.append(flowbox_main);
+	flowbox_main.set_max_children_per_line(1);
+
+	// TODO: Add a click to copy to clipboard function
 
 	auto controller = Gtk::EventControllerKey::create();
 	controller->signal_key_pressed().connect([&](const guint &keyval, const guint &keycode, const Gdk::ModifierType &state) {
@@ -131,4 +137,27 @@ clipboard::clipboard() : box_main(Gtk::Orientation::VERTICAL) {
 	display = wl_display_connect(NULL);
 	auto registry = wl_display_get_registry(g_display);
 	wl_registry_add_listener(registry, &registry_listener, this);
+}
+
+void clipboard::add_item(const std::string& value) {
+	auto flowbox_child_hist = Gtk::make_managed<Gtk::FlowBoxChild>();
+	auto box_hist = Gtk::make_managed<Gtk::Box>();
+	auto label_hist = Gtk::make_managed<Gtk::Label>(value);
+	auto button_hist = Gtk::make_managed<Gtk::Button>("x");
+
+	label_hist->set_hexpand(true);
+	label_hist->set_xalign(0);
+
+	button_hist->signal_clicked().connect([&, flowbox_child_hist]() {
+		flowbox_main.remove(*flowbox_child_hist);
+	});
+
+	flowbox_child_hist->set_child(*box_hist);
+	box_hist->append(*label_hist);
+	box_hist->append(*button_hist);
+	flowbox_main.append(*flowbox_child_hist);
+
+	// TODO: Add config option to set this
+	if (flowbox_main.get_children().size() > 10)
+		flowbox_main.remove(*flowbox_main.get_children()[0]);
 }
