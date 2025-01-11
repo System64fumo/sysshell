@@ -154,7 +154,7 @@ int main() {
 
 	signal(SIGRTMIN+5, handle_signal);	// syspower: show
 
-	signal(SIGRTMIN+9, handle_signal);	// syspower: show
+	signal(SIGRTMIN+9, handle_signal);	// clipboard: show
 
 	return app->run();
 }
