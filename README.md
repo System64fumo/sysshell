@@ -27,6 +27,12 @@ Simple and efficient application launcher written in gtkmm4<br>
 Simple power menu/shutdown screen written in gtkmm 4<br>
 ![default](https://github.com/System64fumo/syspower/blob/main/preview.gif "preview")
 
+## Clipboard
+Simple clipboard history manager<br>
+This is the first exclusive feature, To enable it add `extras=clipboard` to your config.<br>
+Please do note!! This feature is still experimental and thus lacking features.<br>
+Additionally, Your clipboard gets copied to a temporary file (That gets deleted a few ms later) so it's sort of insecure.<br>
+
 # Why does this exist?
 Primarily because i wanted to have some fun writing a shell, But also because other solutions don't quite do a good enough job for me<br>
 The sysshell launcher exists as a way to preserve memory instead of launching every sys* program independently.<br>

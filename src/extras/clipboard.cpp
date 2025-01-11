@@ -4,6 +4,7 @@
 #include <gtkmm/eventcontrollerkey.h>
 #include <gtkmm/button.h>
 #include <gtkmm/label.h>
+#include <glibmm/main.h>
 #include <fcntl.h>
 #include <fstream>
 #include <thread>
@@ -11,9 +12,6 @@
 static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* offer, const char* mime_type) {
 	auto self = static_cast<clipboard*>(data);
 	//std::printf("Available mime types: %s\n", mime_type);
-
-	// Temporarily disable this since it's a security risk
-	return;
 
 	std::string mime = mime_type;
 	std::string clipboard_path = std::string(getenv("XDG_RUNTIME_DIR")) + "/sysshell_clipboard.tmp";
@@ -42,9 +40,10 @@ static void data_control_offer(void* data, struct zwlr_data_control_offer_v1* of
 			std::istreambuf_iterator<char>());
 		remove(clipboard_path.c_str());
 
-		// TODO: Fix thread safety issues
-		// This WILL cause issues, Please fix this ASAP
-		self->add_item(contents);
+		Glib::signal_idle().connect([&, self, contents]() {
+			self->add_item(contents);
+			return false;
+		});
 	}).detach();
 }
 
@@ -99,7 +98,7 @@ static wl_registry_listener registry_listener = {
 	&registry_handler
 };
 
-clipboard::clipboard() : box_main(Gtk::Orientation::VERTICAL) {
+clipboard::clipboard() : gdk_clipboard(get_clipboard()), box_main(Gtk::Orientation::VERTICAL) {
 	// TODO: Add positioning control (Ideally place under the cursor or near the text entry field)
 
 	// Layer shell stuff
@@ -114,11 +113,16 @@ clipboard::clipboard() : box_main(Gtk::Orientation::VERTICAL) {
 	set_default_size(300, 400);
 
 	set_child(box_main);
-	box_main.append(entry_search);
+	//box_main.append(entry_search); // TODO: Work on this later
 	box_main.append(flowbox_main);
 	flowbox_main.set_max_children_per_line(1);
+	flowbox_main.set_selection_mode(Gtk::SelectionMode::NONE);
 
-	// TODO: Add a click to copy to clipboard function
+	flowbox_main.signal_child_activated().connect([&](Gtk::FlowBoxChild* child) {
+		auto box_hist = dynamic_cast<Gtk::Box*>(child->get_child());
+		auto label_hist = dynamic_cast<Gtk::Label*>(box_hist->get_children()[0]);
+		gdk_clipboard->set_text(label_hist->get_text());
+	});
 
 	auto controller = Gtk::EventControllerKey::create();
 	controller->signal_key_pressed().connect([&](const guint &keyval, const guint &keycode, const Gdk::ModifierType &state) {
@@ -155,7 +159,20 @@ void clipboard::add_item(const std::string& value) {
 	flowbox_child_hist->set_child(*box_hist);
 	box_hist->append(*label_hist);
 	box_hist->append(*button_hist);
-	flowbox_main.append(*flowbox_child_hist);
+
+	// TODO: This is terrible, Maybe re-sort instead of re-create?
+
+	// Remove existing item
+	for (const auto& child : flowbox_main.get_children()) {
+		auto fbox_child = dynamic_cast<Gtk::FlowBoxChild*>(child);
+		auto fbc_box_hist = dynamic_cast<Gtk::Box*>(fbox_child->get_child());
+		auto fbc_label_hist = dynamic_cast<Gtk::Label*>(fbc_box_hist->get_children()[0]);
+		if (fbc_label_hist->get_text() == label_hist->get_text()) {
+			flowbox_main.remove(*fbox_child);
+		}
+	}
+
+	flowbox_main.prepend(*flowbox_child_hist);
 
 	// TODO: Add config option to set this
 	if (flowbox_main.get_children().size() > 10)
