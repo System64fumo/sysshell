@@ -1,4 +1,5 @@
 #include <gtkmm/window.h>
+#include <gdkmm/clipboard.h>
 #include <gtkmm/box.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/flowbox.h>
@@ -10,6 +11,7 @@ class clipboard : public Gtk::Window {
 
 		zwlr_data_control_manager_v1* control_manager;
 
+		Glib::RefPtr<Gdk::Clipboard> gdk_clipboard;
 		GdkDisplay* gdk_display;
 		GdkSeat* gdk_seat;
 		wl_seat* seat;
