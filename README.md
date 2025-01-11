@@ -27,6 +27,23 @@ Simple and efficient application launcher written in gtkmm4<br>
 Simple power menu/shutdown screen written in gtkmm 4<br>
 ![default](https://github.com/System64fumo/syspower/blob/main/preview.gif "preview")
 
+
+# Signals
+Use the following signals to perform the corresponding actions.<br>
+`pkill -10` sysmenu: Show window<br>
+`pkill -12` sysmenu: Hide window<br>
+`pkill -34` sysmenu: Toggle window<br>
+`pkill -35` syslock: Lock screen<br>
+`pkill -36` sysbar: Show window<br>
+`pkill -37` sysbar: Hide window<br>
+`pkill -38` sysbar: Toggle window<br>
+`pkill -39` syspower: Show window<br>
+`pkill -40` sysboard: Show window<br>
+`pkill -41` sysboard: Hide window<br>
+`pkill -42` sysboard: Toggle window<br>
+`pkill -43` clipboard: Show window<br>
+
+
 ## Clipboard
 Simple clipboard history manager<br>
 This is the first exclusive feature, To enable it add `extras=clipboard` to your config.<br>
