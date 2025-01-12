@@ -51,10 +51,18 @@ Please do note!! This feature is still experimental and thus lacking features.<b
 Additionally, Your clipboard gets copied to a temporary file (That gets deleted a few ms later) so it's sort of insecure.<br>
 
 # Why does this exist?
-Primarily because i wanted to have some fun writing a shell, But also because other solutions don't quite do a good enough job for me<br>
-The sysshell launcher exists as a way to preserve memory instead of launching every sys* program independently.<br>
-This is one of my most ambitious projects yet and i'm unsure if i'm capable of finishing everything i've started,
-Contribution is most certianly welcome!
+Launching individual sysshell components consumes a lot of resources, Especially when hardware acceleration is enabled.<br>
+So launching everything from one GTK Application instance helps mitigate the increased memory usage at the cost of stability.<br>
+(If one program crashes the whole shell goes down with it)<br>
+
+# Contribution
+This is my most ambitious project yet and i'm unsure if i'm capable of finishing anything i've started.<br>
+If you wish for a feature to be added/fixed/worked on please open an issue, I prefer focusing on what annoys me or others first.<br>
+Additionally, Any kind of contribution is welcome be it documentation, code, cleanup, etc.<br>
+
+# Packaging
+I package my software on the AUR, However some parts of my software also exists on other repositories maintained by the community.<br>
+Maintaining packages for every distribution out there sounds like a lot of work, So if you'd like to feel free to package and maintain any of my projects on your repo of choice.<br> (Please open an issue so i can keep track of what exists where, I'd like to eventually have a list in the project's repos)
 
 # Future plans
 Create a screenshot overlay<br>
@@ -63,3 +71,6 @@ Optimize existing stuff as much as possible, At the moment the focus is on featu
 Either rewrite major sections of code with more up to date C++ practices/stuff or rewrite in pure C<br>
 Split/Handle shared code via a common library to reduce duplicate code<br>
 
+# License
+My software is typically licensed under the WTFPL license, Not a perfect license but it gets the job done.<br>
+I grant you permission to do practically anything with my software, All i ask in exchange is to be credited.<br>
