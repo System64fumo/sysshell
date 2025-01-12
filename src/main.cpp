@@ -81,7 +81,7 @@ int main() {
 	// This is required for linking to work properly
 	bool supported = gtk_layer_is_supported();
 	if (!supported) {
-		std::cerr << "I've got a sneaking suspision that your compositor doesn't support gtk layer shell.." << std::endl;
+		std::fprintf(stderr, "I've got a sneaking suspision that your compositor doesn't support gtk layer shell..\n");
 		return 1;
 	}
 

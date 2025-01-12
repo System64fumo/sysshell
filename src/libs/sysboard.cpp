@@ -8,10 +8,10 @@ void load_libsysboard() {
 	});
 
 	std::thread([&, dispatcher_callback]() {
-		std::cout << "Loading: libsysboard.so" << std::endl;
+		std::printf("Loading: libsysboard.so\n");
 		void* handle = dlopen("libsysboard.so", RTLD_LAZY);
 		if (!handle) {
-			std::cerr << "Cannot open library: " << dlerror() << '\n';
+			std::fprintf(stderr, "Cannot open library: %s\n", dlerror());
 			return;
 		}
 
@@ -20,7 +20,7 @@ void load_libsysboard() {
 
 		const char* dlsym_error = dlerror();
 		if (dlsym_error) {
-			std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+			std::fprintf(stderr, "Cannot load symbols: %s\n", dlsym_error);
 			dlclose(handle);
 			return;
 		}

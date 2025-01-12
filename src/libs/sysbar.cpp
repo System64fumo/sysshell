@@ -1,5 +1,4 @@
 #include "../main.hpp"
-#include <filesystem>
 
 void load_libsysbar() {
 	Glib::Dispatcher* dispatcher_callback = new Glib::Dispatcher();
@@ -9,11 +8,11 @@ void load_libsysbar() {
 	});
 
 	std::thread([&, dispatcher_callback]() {
-		std::cout << "Loading: libsysbar.so" << std::endl;
+		std::printf("Loading: libsysbar.so");
 
 		void* handle = dlopen("libsysbar.so", RTLD_LAZY);
 		if (!handle) {
-			std::cerr << "Cannot open library: " << dlerror() << '\n';
+			std::fprintf(stderr, "Cannot open library: %s\n", dlerror());
 			return;
 		}
 
@@ -22,7 +21,7 @@ void load_libsysbar() {
 
 		const char* dlsym_error = dlerror();
 		if (dlsym_error) {
-			std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+			std::fprintf(stderr, "Cannot load symbols: %s\n", dlsym_error);
 			dlclose(handle);
 			return;
 		}
