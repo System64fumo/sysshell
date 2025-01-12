@@ -10,8 +10,10 @@
 
 #include "extras/clipboard.hpp"
 
+#include <glibmm/dispatcher.h>
 #include <iostream>
 #include <dlfcn.h>
+#include <thread>
 
 void load_libsysbar();
 void load_libsysboard();
