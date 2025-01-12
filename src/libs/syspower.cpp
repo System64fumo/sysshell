@@ -1,10 +1,10 @@
 #include "../main.hpp"
 
 void load_libsyspower() {
-	std::cout << "Loading: libsyspower.so" << std::endl;
+	std::printf("Loading: libsyspower.so\n");
 	void* handle = dlopen("libsyspower.so", RTLD_LAZY);
 	if (!handle) {
-		std::cerr << "Cannot open library: " << dlerror() << '\n';
+		std::fprintf(stderr, "Cannot open library: %s\n", dlerror());
 		return;
 	}
 
@@ -12,7 +12,7 @@ void load_libsyspower() {
 
 	const char* dlsym_error = dlerror();
 	if (dlsym_error) {
-		std::cerr << "Cannot load symbols: " << dlsym_error << '\n';
+		std::fprintf(stderr, "Cannot load symbols: %s\n", dlsym_error);
 		dlclose(handle);
 		return;
 	}

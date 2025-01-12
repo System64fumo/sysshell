@@ -11,7 +11,6 @@
 #include "extras/clipboard.hpp"
 
 #include <glibmm/dispatcher.h>
-#include <iostream>
 #include <dlfcn.h>
 #include <thread>
 
