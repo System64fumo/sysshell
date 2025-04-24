@@ -8,7 +8,7 @@ void load_libsysbar() {
 	});
 
 	std::thread([&, dispatcher_callback]() {
-		std::printf("Loading: libsysbar.so");
+		std::printf("Loading: libsysbar.so\n");
 
 		void* handle = dlopen("libsysbar.so", RTLD_LAZY);
 		if (!handle) {
