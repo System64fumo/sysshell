@@ -2,6 +2,11 @@
 sysshell is a generic shell for wayland written in gtkmm 4<br>
 This program serves as a launcher for my other sys* programs and doesn't offer any additional features (yet)<br>
 
+> [!IMPORTANT]
+> In light of recent events i've decided that i had enough with GTK/GNOME and will be switching over to QT.<br>
+> My software will be rewritten using QT and that should in theory fix some critical bugs found in GTK.<br>
+> I'm disappointed in what GNOME priorotizes over fixing their software..<br>
+
 # Features
 ## [sysbar](https://github.com/System64fumo/sysbar)
 Modular status bar for wayland written in gtkmm4<br>
@@ -68,7 +73,7 @@ Maintaining packages for every distribution out there sounds like a lot of work,
 Create a screenshot overlay<br>
 Create a polkit/keyring overlay<br>
 Optimize existing stuff as much as possible, At the moment the focus is on features<br>
-Either rewrite major sections of code with more up to date C++ practices/stuff or rewrite in pure C<br>
+Rewrite GUI using QT instead of GTK<br>
 Split/Handle shared code via a common library to reduce duplicate code<br>
 
 # License
