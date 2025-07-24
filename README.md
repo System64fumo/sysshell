@@ -1,36 +1,31 @@
 # sysshell
-sysshell is a generic shell for wayland written in gtkmm 4<br>
-This program serves as a launcher for my other sys* programs and doesn't offer any additional features (yet)<br>
-
-> [!IMPORTANT]
-> In light of recent events i've decided that i had enough with GTK/GNOME and will be switching over to QT.<br>
-> My software will be rewritten using QT and that should in theory fix some critical bugs found in GTK.<br>
-> I'm disappointed in what GNOME priorotizes over fixing their software..<br>
+sysshell is a generic shell meant to provide a cohesive experience for all.<br>
+It's also a personal project so goals and features may cator to my requirements.<br>
 
 # Features
 ## [sysbar](https://github.com/System64fumo/sysbar)
-Modular status bar for wayland written in gtkmm4<br>
-![preview](https://github.com/System64fumo/sysbar/blob/main/preview.jpg "preview")
+Modular status bar<br>
+<img src="https://github.com/System64fumo/sysbar/blob/main/preview.jpg" alt="preview" width="720">
 
 ## [sysboard](https://github.com/System64fumo/sysboard)
-Simple virtual keyboard for wayland<br>
-![preview](https://github.com/System64fumo/sysboard/blob/main/preview.png "preview")
+Simple virtual keyboard<br>
+<img src="https://github.com/System64fumo/sysboard/blob/main/preview.png" alt="preview" width="720">
 
 ## [syshud](https://github.com/System64fumo/syshud)
-Simple system status indicator written in gtkmm 4<br>
-![preview](https://github.com/System64fumo/sysvol/blob/main/preview.gif "preview")
+Simple system status indicator<br>
+<img src="https://github.com/System64fumo/syshud/blob/main/preview.gif" alt="preview">
 
 ## [syslock](https://github.com/System64fumo/syslock)
-Simple screen locker for wayland written in gtkmm 4<br>
-![preview](https://github.com/System64fumo/syslock/blob/main/preview.gif "preview")
+Simple screen locker<br>
+<img src="https://github.com/System64fumo/syslock/blob/main/preview.gif" alt="preview" width="720">
 
 ## [sysmenu](https://github.com/System64fumo/sysmenu)
-Simple and efficient application launcher written in gtkmm4<br>
-![default](https://github.com/System64fumo/sysmenu/blob/main/preview_default.gif "default")
+Simple and efficient application launcher<br>
+<img src="https://github.com/System64fumo/sysmenu/blob/main/preview_default.gif" alt="preview" width="720">
 
 ## [syspower](https://github.com/System64fumo/syspower)
-Simple power menu/shutdown screen written in gtkmm 4<br>
-![default](https://github.com/System64fumo/syspower/blob/main/preview.gif "preview")
+Simple power menu/shutdown screen<br>
+<img src="https://github.com/System64fumo/syspower/blob/main/preview.gif" alt="preview" width="720">
 
 
 # Signals
@@ -56,9 +51,9 @@ Please do note!! This feature is still experimental and thus lacking features.<b
 Additionally, Your clipboard gets copied to a temporary file (That gets deleted a few ms later) so it's sort of insecure.<br>
 
 # Why does this exist?
-Launching individual sysshell components consumes a lot of resources, Especially when hardware acceleration is enabled.<br>
-So launching everything from one GTK Application instance helps mitigate the increased memory usage at the cost of stability.<br>
-(If one program crashes the whole shell goes down with it)<br>
+The sysshell binary exists as a way to reduce resource consumption as launching several application instances tends to consume more memory.<br>
+The shell components exist because there wasn't cohesive DE agnostic graphical shell out there that did things the way i wanted.<br>
+Also because i wanted to have the control and flexibility of having my own shell.<br>
 
 # Contribution
 This is my most ambitious project yet and i'm unsure if i'm capable of finishing anything i've started.<br>
@@ -69,13 +64,18 @@ Additionally, Any kind of contribution is welcome be it documentation, code, cle
 I package my software on the AUR, However some parts of my software also exists on other repositories maintained by the community.<br>
 Maintaining packages for every distribution out there sounds like a lot of work, So if you'd like to feel free to package and maintain any of my projects on your repo of choice.<br> (Please open an issue so i can keep track of what exists where, I'd like to eventually have a list in the project's repos)
 
+# GNOME/GTK
+Unfortunately the GNOME foundation is not the best.. And their decisions often leaves people divided such as with GTK5 and Libadwaita.<br>
+I've attempted to rewrite the shell in QT but quickly found out that it's not a serious alternative to GTK..<br>
+If you take issue with GNOME's direction, leadership, politics or GTK and want to avoid it wherever possible i suggest you take a look at [Quickshell](https://quickshell.org/).<br>
+
 # Future plans
 Create a screenshot overlay<br>
 Create a polkit/keyring overlay<br>
 Optimize existing stuff as much as possible, At the moment the focus is on features<br>
-Rewrite GUI using QT instead of GTK<br>
 Split/Handle shared code via a common library to reduce duplicate code<br>
+Possibly rewrite some code in pure C to reduce complexity and compile time?<br>
 
 # License
-My software is typically licensed under the WTFPL license, Not a perfect license but it gets the job done.<br>
+My software is typically licensed under WTFPL but will be replaced by GPL in the near future.<br>
 I grant you permission to do practically anything with my software, All i ask in exchange is to be credited.<br>
