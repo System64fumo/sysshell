@@ -104,7 +104,9 @@ int main() {
 	std::istringstream iss(cfg_shell.load);
 	std::string library;
 	while (std::getline(iss, library, ',')) {
-		if (library == "bar")
+		if (library == "auth")
+			load_libsysauth();
+		else if (library == "bar")
 			load_libsysbar();
 		else if (library == "board")
 			load_libsysboard();

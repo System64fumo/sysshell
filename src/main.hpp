@@ -1,6 +1,7 @@
 #pragma once
 #include "config_parser.hpp"
 
+#include <libsysauth.hpp>
 #include <libsysbar.hpp>
 #include <libsysboard.hpp>
 #include <libsyshud.hpp>
@@ -14,6 +15,7 @@
 #include <dlfcn.h>
 #include <thread>
 
+void load_libsysauth();
 void load_libsysbar();
 void load_libsysboard();
 void load_libsyshud();
@@ -26,5 +28,5 @@ inline clipboard* cl;
 std::map<std::string, std::map<std::string, std::string>> load_config(const std::string&);
 
 inline struct config_shell {
-	std::string load = "bar,board,hud,lock,menu,power";
+	std::string load = "auth,bar,board,hud,lock,menu,power";
 } cfg_shell;
